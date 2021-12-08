@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
 
     SDL_Texture *grassTexture = IMG_LoadTexture(renderer, "resources/grass.png");
     SDL_Texture *tomatoTexture = IMG_LoadTexture(renderer, "resources/tomato.png");
-    SDL_Texture *playerTexture = IMG_LoadTexture(renderer, "resources/player.png");
+    SDL_Texture *playerTexture = IMG_LoadTexture(renderer, "resources/player1.png");
 
     // main game loop
     while (!shouldExit) {
