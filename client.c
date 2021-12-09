@@ -279,8 +279,7 @@ int main(int argc, char* argv[])
     while (!shouldExit) {
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
-
-        Fgets()
+        
         Rio_writen(clientfd, buf, strlen(buf));
         processInputs();
 
