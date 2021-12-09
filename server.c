@@ -4,8 +4,12 @@
 /* $begin echoservertmain */
 #include "csapp.h"
 
-void echo(int connfd);
+void position(int connfd);
 void *thread(void *vargp);
+
+int score;
+int level;
+int numTomatoes;
 
 int main(int argc, char **argv) 
 {
@@ -34,13 +38,13 @@ void *thread(void *vargp)
     int connfd = *((int *)vargp);
     Pthread_detach(pthread_self()); //line:conc:echoservert:detach
     Free(vargp);                    //line:conc:echoservert:free
-    echo(connfd);
+    position(connfd);
     Close(connfd);
     return NULL;
 }
 /* $end echoservertmain */
 
-void echo(int connfd) 
+void position(int connfd) 
 {
     size_t n; 
     char buf[MAXLINE]; 

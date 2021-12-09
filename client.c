@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include "csapp.h"
 
 // Dimensions for the drawn grid (should be GRIDSIZE * texture dimensions)
 #define GRID_DRAW_WIDTH 640
@@ -33,11 +34,15 @@ typedef enum
 
 TILETYPE grid[GRIDSIZE][GRIDSIZE];
 
-Position playerPosition;
+Position player1Position;
+// Position playerPosition;
+// Position playerPosition;
+// Position playerPosition;
+
 int score;
 int level;
 int numTomatoes;
-
+char buf[MAXLINE];
 bool shouldExit = false;
 
 TTF_Font* font;
@@ -63,8 +68,8 @@ void initGrid()
     }
 
     // force player's position to be grass
-    if (grid[playerPosition.x][playerPosition.y] == TILE_TOMATO) {
-        grid[playerPosition.x][playerPosition.y] = TILE_GRASS;
+    if (grid[player1Position.x][player1Position.y] == TILE_TOMATO) {
+        grid[player1Position.x][player1Position.y] = TILE_GRASS;
         numTomatoes--;
     }
 
@@ -99,14 +104,14 @@ void moveTo(int x, int y)
         return;
 
     // Sanity check: player can only move to 4 adjacent squares
-    if (!(abs(playerPosition.x - x) == 1 && abs(playerPosition.y - y) == 0) &&
-        !(abs(playerPosition.x - x) == 0 && abs(playerPosition.y - y) == 1)) {
-        fprintf(stderr, "Invalid move attempted from (%d, %d) to (%d, %d)\n", playerPosition.x, playerPosition.y, x, y);
+    if (!(abs(player1Position.x - x) == 1 && abs(player1Position.y - y) == 0) &&
+        !(abs(player1Position.x - x) == 0 && abs(player1Position.y - y) == 1)) {
+        fprintf(stderr, "Invalid move attempted from (%d, %d) to (%d, %d)\n", player1Position.x, player1Position.y, x, y);
         return;
     }
 
-    playerPosition.x = x;
-    playerPosition.y = y;
+    player1Position.x = x;
+    player1Position.y = y;
 
     if (grid[x][y] == TILE_TOMATO) {
         grid[x][y] = TILE_GRASS;
@@ -129,16 +134,16 @@ void handleKeyDown(SDL_KeyboardEvent* event)
         shouldExit = true;
 
     if (event->keysym.scancode == SDL_SCANCODE_UP || event->keysym.scancode == SDL_SCANCODE_W)
-        moveTo(playerPosition.x, playerPosition.y - 1);
+        moveTo(player1Position.x, player1Position.y - 1);
 
     if (event->keysym.scancode == SDL_SCANCODE_DOWN || event->keysym.scancode == SDL_SCANCODE_S)
-        moveTo(playerPosition.x, playerPosition.y + 1);
+        moveTo(player1Position.x, player1Position.y + 1);
 
     if (event->keysym.scancode == SDL_SCANCODE_LEFT || event->keysym.scancode == SDL_SCANCODE_A)
-        moveTo(playerPosition.x - 1, playerPosition.y);
+        moveTo(player1Position.x - 1, player1Position.y);
 
     if (event->keysym.scancode == SDL_SCANCODE_RIGHT || event->keysym.scancode == SDL_SCANCODE_D)
-        moveTo(playerPosition.x + 1, playerPosition.y);
+        moveTo(player1Position.x + 1, player1Position.y);
 }
 
 void processInputs()
@@ -161,7 +166,7 @@ void processInputs()
 	}
 }
 
-void drawGrid(SDL_Renderer* renderer, SDL_Texture* grassTexture, SDL_Texture* tomatoTexture, SDL_Texture* playerTexture)
+void drawGrid(SDL_Renderer* renderer, SDL_Texture* grassTexture, SDL_Texture* tomatoTexture, SDL_Texture* player1Texture, SDL_Texture* player2Texture, SDL_Texture* player3Texture, SDL_Texture* player4Texture)
 {
     SDL_Rect dest;
     for (int i = 0; i < GRIDSIZE; i++) {
@@ -174,10 +179,11 @@ void drawGrid(SDL_Renderer* renderer, SDL_Texture* grassTexture, SDL_Texture* to
         }
     }
 
-    dest.x = 64 * playerPosition.x;
-    dest.y = 64 * playerPosition.y + HEADER_HEIGHT;
-    SDL_QueryTexture(playerTexture, NULL, NULL, &dest.w, &dest.h);
-    SDL_RenderCopy(renderer, playerTexture, NULL, &dest);
+    //creating player texture (override the grass texture)
+    dest.x = 64 * player1Position.x;
+    dest.y = 64 * player1Position.y + HEADER_HEIGHT;
+    SDL_QueryTexture(player1Texture, NULL, NULL, &dest.w, &dest.h);
+    SDL_RenderCopy(renderer, player1Texture, NULL, &dest);
 }
 
 void drawUI(SDL_Renderer* renderer)
@@ -219,7 +225,22 @@ int main(int argc, char* argv[])
 {
     srand(time(NULL));
 
-    level = 1;
+    //level = 1;
+
+    int clientfd;
+    char *host, *port;
+    rio_t rio;
+
+    if (argc != 3) {
+	    fprintf(stderr, "usage: %s <host> <port>\n", argv[0]);
+	    exit(0);
+    }
+    host = argv[1];
+    port = argv[2];
+
+    clientfd = Open_clientfd(host, port);
+    Rio_readinitb(&rio, clientfd);
+
 
     initSDL();
 
@@ -229,7 +250,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    playerPosition.x = playerPosition.y = GRIDSIZE / 2;
+    player1Position.x = player1Position.y = GRIDSIZE / 2;
     initGrid();
 
     SDL_Window* window = SDL_CreateWindow("Client", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
@@ -249,16 +270,21 @@ int main(int argc, char* argv[])
 
     SDL_Texture *grassTexture = IMG_LoadTexture(renderer, "resources/grass.png");
     SDL_Texture *tomatoTexture = IMG_LoadTexture(renderer, "resources/tomato.png");
-    SDL_Texture *playerTexture = IMG_LoadTexture(renderer, "resources/player1.png");
+    SDL_Texture *player1Texture = IMG_LoadTexture(renderer, "resources/player1.png");
+    SDL_Texture *player2Texture = IMG_LoadTexture(renderer, "resources/player2.png");
+    SDL_Texture *player3Texture = IMG_LoadTexture(renderer, "resources/player3.png");
+    SDL_Texture *player4Texture = IMG_LoadTexture(renderer, "resources/player4.png");
 
     // main game loop
     while (!shouldExit) {
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
 
+        Fgets()
+        Rio_writen(clientfd, buf, strlen(buf));
         processInputs();
 
-        drawGrid(renderer, grassTexture, tomatoTexture, playerTexture);
+        drawGrid(renderer, grassTexture, tomatoTexture, player1Texture, player2Texture, player3Texture, player4Texture);
         drawUI(renderer);
 
         SDL_RenderPresent(renderer);
@@ -269,7 +295,10 @@ int main(int argc, char* argv[])
     // clean up everything
     SDL_DestroyTexture(grassTexture);
     SDL_DestroyTexture(tomatoTexture);
-    SDL_DestroyTexture(playerTexture);
+    SDL_DestroyTexture(player1Texture);
+    SDL_DestroyTexture(player2Texture);
+    SDL_DestroyTexture(player3Texture);
+    SDL_DestroyTexture(player4Texture);
 
     TTF_CloseFont(font);
     TTF_Quit();
@@ -279,4 +308,7 @@ int main(int argc, char* argv[])
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+    Close(clientfd);
+    exit(0);
 }
