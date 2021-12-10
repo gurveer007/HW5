@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 
     clientfd = Open_clientfd(host, port);
     Rio_readinitb(&rio, clientfd);
-
+    
 
     initSDL();
 
@@ -254,10 +254,10 @@ int main(int argc, char* argv[])
 
     //player1.x = player1.y = GRIDSIZE / 2;
 
-    //receiving coordinates from server
+    //Receiving data from server
     Rio_readlineb(&rio, buf, MAXLINE);
-
-    //do parsing here once and store it into local variables
+    //do parsing here and save local changes
+    
 
     initGrid();
 
@@ -283,19 +283,18 @@ int main(int argc, char* argv[])
     SDL_Texture *player3Texture = IMG_LoadTexture(renderer, "resources/player3.png");
     SDL_Texture *player4Texture = IMG_LoadTexture(renderer, "resources/player4.png");
 
-
     // main game loop
     while (!shouldExit) {
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
-        
-        //receiving coordinates from server
+
+         //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
-
-        //parsing here and store local variables
-
+        //do parsing here and save local changes
+        
         //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
+
         processInputs();
 
         drawGrid(renderer, grassTexture, tomatoTexture, player1Texture, player2Texture, player3Texture, player4Texture);
