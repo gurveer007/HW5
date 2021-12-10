@@ -4,6 +4,9 @@
 /* $begin echoservertmain */
 #include "csapp.h"
 
+// Number of cells vertically/horizontally in the grid
+#define GRIDSIZE 10
+
 void position(int connfd);
 void *thread(void *vargp);
 
@@ -13,6 +16,14 @@ typedef struct
     int y;
 } Position;
 
+typedef enum
+{
+    TILE_GRASS,
+    TILE_TOMATO
+} TILETYPE;
+
+TILETYPE grid[GRIDSIZE][GRIDSIZE];
+
 Position player1;
 Position player2;
 Position player3;
@@ -21,6 +32,12 @@ Position player4;
 int score;
 int level;
 int numTomatoes;
+
+// get a random value in the range [0, 1]
+double rand01()
+{
+    return (double) rand() / (double) RAND_MAX;
+}
 
 int main(int argc, char **argv) 
 {

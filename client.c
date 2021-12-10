@@ -34,10 +34,10 @@ typedef enum
 
 TILETYPE grid[GRIDSIZE][GRIDSIZE];
 
-Position player1Position;
-Position player2Position;
-Position player3Position;
-Position player4Position;
+Position player1;
+Position player2;
+Position player3;
+Position player4;
 
 int score;
 int level;
@@ -47,6 +47,7 @@ bool shouldExit = false;
 
 TTF_Font* font;
 
+/*
 // get a random value in the range [0, 1]
 double rand01()
 {
@@ -68,8 +69,8 @@ void initGrid()
     }
 
     // force player's position to be grass
-    if (grid[player1Position.x][player1Position.y] == TILE_TOMATO) {
-        grid[player1Position.x][player1Position.y] = TILE_GRASS;
+    if (grid[player1.x][player1.y] == TILE_TOMATO) {
+        grid[player1.x][player1.y] = TILE_GRASS;
         numTomatoes--;
     }
 
@@ -77,6 +78,7 @@ void initGrid()
     while (numTomatoes == 0)
         initGrid();
 }
+ */
 
 void initSDL()
 {
@@ -104,14 +106,14 @@ void moveTo(int x, int y)
         return;
 
     // Sanity check: player can only move to 4 adjacent squares
-    if (!(abs(player1Position.x - x) == 1 && abs(player1Position.y - y) == 0) &&
-        !(abs(player1Position.x - x) == 0 && abs(player1Position.y - y) == 1)) {
-        fprintf(stderr, "Invalid move attempted from (%d, %d) to (%d, %d)\n", player1Position.x, player1Position.y, x, y);
+    if (!(abs(player1.x - x) == 1 && abs(player1.y - y) == 0) &&
+        !(abs(player1.x - x) == 0 && abs(player1.y - y) == 1)) {
+        fprintf(stderr, "Invalid move attempted from (%d, %d) to (%d, %d)\n", player1.x, player1.y, x, y);
         return;
     }
 
-    player1Position.x = x;
-    player1Position.y = y;
+    player1.x = x;
+    player1.y = y;
 
     if (grid[x][y] == TILE_TOMATO) {
         grid[x][y] = TILE_GRASS;
@@ -134,16 +136,16 @@ void handleKeyDown(SDL_KeyboardEvent* event)
         shouldExit = true;
 
     if (event->keysym.scancode == SDL_SCANCODE_UP || event->keysym.scancode == SDL_SCANCODE_W)
-        moveTo(player1Position.x, player1Position.y - 1);
+        moveTo(player1.x, player1.y - 1);
 
     if (event->keysym.scancode == SDL_SCANCODE_DOWN || event->keysym.scancode == SDL_SCANCODE_S)
-        moveTo(player1Position.x, player1Position.y + 1);
+        moveTo(player1.x, player1.y + 1);
 
     if (event->keysym.scancode == SDL_SCANCODE_LEFT || event->keysym.scancode == SDL_SCANCODE_A)
-        moveTo(player1Position.x - 1, player1Position.y);
+        moveTo(player1.x - 1, player1.y);
 
     if (event->keysym.scancode == SDL_SCANCODE_RIGHT || event->keysym.scancode == SDL_SCANCODE_D)
-        moveTo(player1Position.x + 1, player1Position.y);
+        moveTo(player1.x + 1, player1.y);
 }
 
 void processInputs()
@@ -180,8 +182,8 @@ void drawGrid(SDL_Renderer* renderer, SDL_Texture* grassTexture, SDL_Texture* to
     }
 
     //creating player texture (override the grass texture)
-    dest.x = 64 * player1Position.x;
-    dest.y = 64 * player1Position.y + HEADER_HEIGHT;
+    dest.x = 64 * player1.x;
+    dest.y = 64 * player1.y + HEADER_HEIGHT;
     SDL_QueryTexture(player1Texture, NULL, NULL, &dest.w, &dest.h);
     SDL_RenderCopy(renderer, player1Texture, NULL, &dest);
 }
@@ -250,11 +252,11 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    //player1Position.x = player1Position.y = GRIDSIZE / 2;
+    //player1.x = player1.y = GRIDSIZE / 2;
 
     //receiving coordinates from server
     Rio_readlineb(&rio, buf, MAXLINE);
-    
+
     //do parsing here once and store it into local variables
 
     initGrid();
