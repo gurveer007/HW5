@@ -35,9 +35,9 @@ typedef enum
 TILETYPE grid[GRIDSIZE][GRIDSIZE];
 
 Position player1Position;
-// Position playerPosition;
-// Position playerPosition;
-// Position playerPosition;
+Position player2Position;
+Position player3Position;
+Position player4Position;
 
 int score;
 int level;
@@ -250,7 +250,13 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    player1Position.x = player1Position.y = GRIDSIZE / 2;
+    //player1Position.x = player1Position.y = GRIDSIZE / 2;
+
+    //receiving coordinates from server
+    Rio_readlineb(&rio, buf, MAXLINE);
+    
+    //do parsing here once and store it into local variables
+
     initGrid();
 
     SDL_Window* window = SDL_CreateWindow("Client", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
@@ -275,11 +281,18 @@ int main(int argc, char* argv[])
     SDL_Texture *player3Texture = IMG_LoadTexture(renderer, "resources/player3.png");
     SDL_Texture *player4Texture = IMG_LoadTexture(renderer, "resources/player4.png");
 
+
     // main game loop
     while (!shouldExit) {
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
         
+        //receiving coordinates from server
+        Rio_readlineb(&rio, buf, MAXLINE);
+
+        //parsing here and store local variables
+
+        //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
         processInputs();
 
