@@ -7,6 +7,17 @@
 void position(int connfd);
 void *thread(void *vargp);
 
+typedef struct
+{
+    int x;
+    int y;
+} Position;
+
+Position player1;
+Position player2;
+Position player3;
+Position player4;
+
 int score;
 int level;
 int numTomatoes;
@@ -52,8 +63,7 @@ void position(int connfd)
 
     Rio_readinitb(&rio, connfd);
     while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) { //line:netp:echo:eof
-	printf("server received %d bytes\n", (int)n);
-    strcpy (buf, "this is the server");
+	//do your parsing here and add into local variable
 	Rio_writen(connfd, buf, n);
     }
 }
