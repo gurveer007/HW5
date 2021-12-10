@@ -80,7 +80,10 @@ void position(int connfd)
 
     Rio_readinitb(&rio, connfd);
     while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) { //line:netp:echo:eof
-	//do your parsing here and add into local variable
-	Rio_writen(connfd, buf, n);
+        //do your parsing here and add into local variable
+        char* p;
+        p = strtok(buf, ",");
+        Rio_writen(connfd, buf, n);
     }
+
 }
