@@ -237,9 +237,11 @@ int main(int argc, char* argv[])
 	    fprintf(stderr, "usage: %s <host> <port>\n", argv[0]);
 	    exit(0);
     }
+
     host = argv[1];
     port = argv[2];
 
+    //establish connection to server
     clientfd = Open_clientfd(host, port);
     Rio_readinitb(&rio, clientfd);
     
@@ -252,14 +254,14 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    //player1.x = player1.y = GRIDSIZE / 2;
+    //player1.x = player1.y = 0;
 
     //Receiving data from server
     Rio_readlineb(&rio, buf, MAXLINE);
     //do parsing here and save local changes
     
 
-    initGrid();
+    //initGrid();
 
     SDL_Window* window = SDL_CreateWindow("Client", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
@@ -290,8 +292,13 @@ int main(int argc, char* argv[])
 
          //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
+
         //do parsing here and save local changes
-        
+        for (int x =0; x < GRIDSIZE; x++) {
+            for (int y =0; y < GRIDSIZE; y++) {
+                
+            }
+        }
         //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
 
