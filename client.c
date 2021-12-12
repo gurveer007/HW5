@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -296,13 +297,13 @@ int main(int argc, char* argv[])
     }
     
     //storing score, numOfTomatos, level, and playerID
-    score = 
+    score = atoi(temp[tempcounter]);
     tempcounter++;
-    numTomatoes = 
+    numTomatoes = atoi(temp[tempcounter]);
     tempcounter++;
-    level = 
+    level = atoi(temp[tempcounter]);
     tempcounter++;
-    localPlayerId =
+    localPlayerId = atoi(temp[tempcounter]);
     tempcounter = 0;
 
     //initGrid();
@@ -334,7 +335,12 @@ int main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
 
-         //Receiving data from server
+        //encoding into buf
+
+        //writing to server
+        Rio_writen(clientfd, buf, strlen(buf));
+
+        //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
 
         //do parsing here and save local changes
@@ -343,8 +349,7 @@ int main(int argc, char* argv[])
                 
             }
         }
-        //writing to server
-        Rio_writen(clientfd, buf, strlen(buf));
+        
 
         processInputs();
 
