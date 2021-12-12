@@ -260,18 +260,17 @@ int main(int argc, char* argv[])
     Rio_readlineb(&rio, buf, MAXLINE);
     
     //do parsing here and save local changes
-    for (int y = 0; y < GRIDSIZE; y++) {
-        for (int x = 0; x < GRIDSIZE; x++) {
-            if (player1.x == x && player1.y == y) {
-                strcat(buf, "5,");
-            }
-            else if (grid[x][y] == TILE_TOMATO) {
-                strcat(buf, "1,");
-            }
-            else {
-                strcat(buf, "0,");
-            }
+    int length = strlen(buf);
+    char *p;
+    p = strtok(buf, ",");
+
+    for (size_t i = 0; i < length; i++)
+    {
+        if(p) {
+            if (p == '1')
+            printf("%s\n", p);
         }
+        p = strtok(NULL, ",");
     }
 
     //initGrid();

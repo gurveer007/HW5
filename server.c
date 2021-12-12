@@ -149,7 +149,7 @@ void position(int connfd, int playerId)
     strcat(buf, ",");
 
     //replacing last "," with termination character
-    if (buf != -1) {
+    if (buf) {
         buf[strlen(buf)-1] = '\0';
     }
     

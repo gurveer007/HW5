@@ -2,10 +2,10 @@
 #include<stdio.h>
 int main()
 {
-    char buf[200];
+    char buf[300];
     //encoding the grid into buf (100 chars)
-    for (int y = 0; y < 100; y++) {
-        for (int x = 0; x < 100; x++) {
+    for (int y = 0; y < 10; y++) {
+        for (int x = 0; x < 10; x++) {
                 if (x==0 && y==0)
                 {
                     strcpy(buf,"0,");
@@ -40,20 +40,24 @@ int main()
     strcat(buf, ",");
 
     //replacing last "," with termination character
-    // if (buf != -1) {
-        // buf[strlen(buf)-1] = '\0';
-    // }
+    if (buf) {
+        buf[strlen(buf)-1] = '\0';
+    }
     
     // char buf[100] = "hello is";
+    //printf("1st length of buf is: %ld\n", strlen(buf));
+    int length = strlen(buf);
     char *p;
-    p = strtok(buf, " ");
+    p = strtok(buf, ",");
 
-    
-    for (size_t i = 0; i < strlen(buf); i++)
+    //printf("2nd length of buf is: %ld\n", strlen(buf));
+    for (size_t i = 0; i < length; i++)
     {
         if(p)
         {
+          if (strcmp(p,"0") == 0) {
             printf("%s\n", p);
+          }
         }
         p = strtok(NULL, ",");
     }
