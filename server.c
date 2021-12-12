@@ -33,6 +33,7 @@ int score;
 int level;
 int numTomatoes;
 int playerId = 0;
+char buf[MAXLINE] = "";
 
 // get a random value in the range [0, 1]
 double rand01()
@@ -111,7 +112,6 @@ void position(int connfd, int playerId)
 {
     int localPlayerId = playerId;
     size_t n; 
-    char buf[MAXLINE]; 
     rio_t rio;
 
     Rio_readinitb(&rio, connfd);
@@ -119,13 +119,13 @@ void position(int connfd, int playerId)
     //encoding the grid into buf (100 chars)
     for (int y = 0; y < GRIDSIZE; y++) {
         for (int x = 0; x < GRIDSIZE; x++) {
-            if (player1.x == x && player1.y == y) {
+            if (player1.x == x && player1.y == y) { //player
                 strcat(buf, "5,");
             }
-            else if (grid[x][y] == TILE_TOMATO) {
+            else if (grid[x][y] == TILE_TOMATO) { //tomato
                 strcat(buf, "1,");
             }
-            else {
+            else { //grass
                 strcat(buf, "0,");
             }
         }
@@ -155,7 +155,7 @@ void position(int connfd, int playerId)
     
     //sending the intial positions to client
     Rio_writen(connfd, buf, strlen(buf));
-
+    
     //while not eof continue reading from client
     while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) { //line:netp:echo:eof
         

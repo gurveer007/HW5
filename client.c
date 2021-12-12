@@ -42,7 +42,8 @@ Position player4;
 int score;
 int level;
 int numTomatoes;
-char buf[MAXLINE];
+int localPlayerId;
+char buf[MAXLINE] = "";
 bool shouldExit = false;
 
 TTF_Font* font;
@@ -261,17 +262,48 @@ int main(int argc, char* argv[])
     
     //do parsing here and save local changes
     int length = strlen(buf);
+    char * temp[200];
+    int tempcounter = 0;
     char *p;
     p = strtok(buf, ",");
 
-    for (size_t i = 0; i < length; i++)
-    {
-        if(p) {
-            if (p == '1')
-            printf("%s\n", p);
+    //storing values from buf into temp array
+    for (size_t i = 0; i < length; i++) {
+        if (p) {
+            //if (strcmp(p,"0") == 0)
+            //printf("%s\n", p);
+            temp[i] = p;
         }
         p = strtok(NULL, ",");
     }
+
+    //saving positions into grid
+    for (int y = 0; y < GRIDSIZE; y++) {
+        for (int x = 0; x < GRIDSIZE; x++) {
+            if (strcmp(temp[tempcounter],"0") == 0) { //grass
+                grid[x][y] = TILE_GRASS;
+            }
+            else if (strcmp(temp[tempcounter],"1") == 0) { //tomato
+                grid[x][y] = TILE_TOMATO;
+            }
+            else if (strcmp(temp[tempcounter],"5") == 0) { //player1
+                grid[x][y] = TILE_GRASS;
+                player1.x = x;
+                player1.y = y;
+            }
+            tempcounter++;
+        }
+    }
+    
+    //storing score, numOfTomatos, level, and playerID
+    score = 
+    tempcounter++;
+    numTomatoes = 
+    tempcounter++;
+    level = 
+    tempcounter++;
+    localPlayerId =
+    tempcounter = 0;
 
     //initGrid();
 
