@@ -67,6 +67,7 @@ void initGrid()
 
 int main(int argc, char **argv) 
 {
+    srand(time(NULL));
     int listenfd, *connfdp;
     socklen_t clientlen;
     struct sockaddr_storage clientaddr;
@@ -108,7 +109,6 @@ void *thread(void *vargp)
 
 void position(int connfd, int playerId) 
 {
-    srand(time(NULL));
     int localPlayerId = playerId;
     size_t n; 
     char buf[MAXLINE]; 
@@ -116,7 +116,7 @@ void position(int connfd, int playerId)
 
     Rio_readinitb(&rio, connfd);
 
-    //encoding the grid into buf
+    //encoding the grid into buf (100 chars)
     for (int y = 0; y < GRIDSIZE; y++) {
         for (int x = 0; x < GRIDSIZE; x++) {
             if (player1.x == x && player1.y == y) {
@@ -130,12 +130,24 @@ void position(int connfd, int playerId)
             }
         }
     }
-    
-    strcat(buf, score);
+    char temp[10];
+
+    sprintf(temp, "%d", score);
+    strcat(buf, temp);
     strcat(buf, ",");
-    strcat(buf, numTomatoes);
+
+    sprintf(temp, "%d", numTomatoes);
+    strcat(buf, temp);
+    strcat(buf, ",");
+
+    sprintf(temp, "%d", level);
+    strcat(buf, temp);
+    strcat(buf, ",");
     
-    
+    sprintf(temp, "%d", localPlayerId);
+    strcat(buf, temp);
+    strcat(buf, ",");
+
     //replacing last "," with termination character
     if (buf != -1) {
         buf[strlen(buf)-1] = '\0';

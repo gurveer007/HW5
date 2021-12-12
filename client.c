@@ -225,7 +225,7 @@ void drawUI(SDL_Renderer* renderer)
 
 int main(int argc, char* argv[])
 {
-    srand(time(NULL));
+    //srand(time(NULL));
 
     //level = 1;
 
