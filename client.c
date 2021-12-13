@@ -287,6 +287,7 @@ int main(int argc, char* argv[])
     
     // main game loop
     while (!shouldExit) {
+        puts("in loop");
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
 
@@ -308,9 +309,10 @@ int main(int argc, char* argv[])
         //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
         strcpy(buf, "");
-
+        
         //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
+        puts("just read data server");
 
         //do parsing here and save local changes 
         length = strlen(buf);

@@ -229,8 +229,9 @@ void position(int connfd, int playerId)
         strcat(buf, intToChar);
         strcat(buf, "\n");
 
-        Rio_writen(connfd, buf, n);
+        Rio_writen(connfd, buf, strlen(buf));
         strcpy(buf, "");
+        puts("beginning to read client data");
     }
 
 }
