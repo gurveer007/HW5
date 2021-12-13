@@ -118,7 +118,7 @@ void position(int connfd, int playerId)
     int localPlayerId = playerId;
     size_t n; 
     rio_t rio;
-
+    puts("start of function");
     Rio_readinitb(&rio, connfd);
 
     //encoding the grid into buf (100 chars)
@@ -163,7 +163,7 @@ void position(int connfd, int playerId)
 
     //continiously read from client
     while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) { //line:netp:echo:eof
-       
+       puts("start of loop");
         //do your parsing here and add into local variable
         length = strlen(buf);
         p = strtok(buf, ",");
