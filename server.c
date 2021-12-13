@@ -25,9 +25,9 @@ typedef enum
 TILETYPE grid[GRIDSIZE][GRIDSIZE];
 
 Position player1;
-Position player2;
-Position player3;
-Position player4;
+//Position player2;
+//Position player3;
+//Position player4;
 
 int score;
 int level;
@@ -154,13 +154,13 @@ void position(int connfd, int playerId)
     strcat(buf, ",");
 
     //replacing last "," with termination character
-    if (buf) {
-        buf[strlen(buf)-1] = '\0';
-    }
+    
+    buf[strlen(buf)-1] = '\0';
+    
     
     //sending the intial positions to client
     Rio_writen(connfd, buf, strlen(buf));
-    
+    strcpy(buf, "");
     char* p;
     char * temp[200];
     int length;
@@ -188,8 +188,9 @@ void position(int connfd, int playerId)
         tempcounter++;
         localPlayerId = atoi(temp[tempcounter]);
         tempcounter = 0;
-        
-        //new stuff
+        strcpy(buf, "");
+
+        //checking if player has obtained a tomato
         if (grid[player1.x][player1.y] == TILE_TOMATO) {
             grid[player1.x][player1.y] = TILE_GRASS;
             score++;
@@ -199,10 +200,9 @@ void position(int connfd, int playerId)
                 level++;
                 initGrid();
             }
-        
         }
 
-        //encoding the grid into buf (100 chars)
+        //encoding the grid into buf
         for (int y = 0; y < GRIDSIZE; y++) {
             for (int x = 0; x < GRIDSIZE; x++) {
                 if (player1.x == x && player1.y == y) { //player
@@ -235,11 +235,10 @@ void position(int connfd, int playerId)
         strcat(buf, ",");
 
         //replacing last "," with termination character
-        if (buf) {
-            buf[strlen(buf)-1] = '\0';
-        }
+        buf[strlen(buf)-1] = '\0';
 
         Rio_writen(connfd, buf, n);
+        strcpy(buf, "");
     }
 
 }

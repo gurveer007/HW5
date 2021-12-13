@@ -37,8 +37,8 @@ TILETYPE grid[GRIDSIZE][GRIDSIZE];
 
 Position player1;
 Position player2;
-Position player3;
-Position player4;
+//Position player3;
+//Position player4;
 
 int score;
 int level;
@@ -49,39 +49,6 @@ bool shouldExit = false;
 //bool increaseScore = false;
 
 TTF_Font* font;
-
-/*
-// get a random value in the range [0, 1]
-double rand01()
-{
-    return (double) rand() / (double) RAND_MAX;
-}
-
-void initGrid()
-{
-    for (int i = 0; i < GRIDSIZE; i++) {
-        for (int j = 0; j < GRIDSIZE; j++) {
-            double r = rand01();
-            if (r < 0.1) {
-                grid[i][j] = TILE_TOMATO;
-                numTomatoes++;
-            }
-            else
-                grid[i][j] = TILE_GRASS;
-        }
-    }
-
-    // force player's position to be grass
-    if (grid[player1.x][player1.y] == TILE_TOMATO) {
-        grid[player1.x][player1.y] = TILE_GRASS;
-        numTomatoes--;
-    }
-
-    // ensure grid isn't empty
-    while (numTomatoes == 0)
-        initGrid();
-}
- */
 
 void initSDL()
 {
@@ -117,16 +84,6 @@ void moveTo(int x, int y)
 
     player1.x = x;
     player1.y = y;
-
-   /* if (grid[x][y] == TILE_TOMATO) {
-        //grid[x][y] = TILE_GRASS;
-        //increaseScore = true;
-        /*if (numTomatoes == 0) {
-            level++;
-            initGrid();
-        }
-        
-    }*/
 }
 
 void handleKeyDown(SDL_KeyboardEvent* event)
@@ -228,9 +185,6 @@ void drawUI(SDL_Renderer* renderer)
 
 int main(int argc, char* argv[])
 {
-    //srand(time(NULL));
-
-    //level = 1;
 
     int clientfd;
     char *host, *port;
@@ -248,7 +202,7 @@ int main(int argc, char* argv[])
     clientfd = Open_clientfd(host, port);
     Rio_readinitb(&rio, clientfd);
     
-
+    
     initSDL();
 
     font = TTF_OpenFont("resources/Burbank-Big-Condensed-Bold-Font.otf", HEADER_HEIGHT);
@@ -257,9 +211,11 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
+    
+
     //player1.x = player1.y = 0;
 
-    //Receiving data from server
+    //Receiving initial data from server
     Rio_readlineb(&rio, buf, MAXLINE);
     
     //do parsing here and save local changes
@@ -307,8 +263,7 @@ int main(int argc, char* argv[])
     tempcounter++;
     localPlayerId = atoi(temp[tempcounter]);
     tempcounter = 0;
-
-    //initGrid();
+    strcpy(buf, "");
 
     SDL_Window* window = SDL_CreateWindow("Client", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
@@ -340,34 +295,25 @@ int main(int argc, char* argv[])
         processInputs();
         
         //encoding into buf
-        for (int i = 0; i < 3; i++) {
-            switch (i)
-            {
-            case 0: 
-                sprintf(intToChar, "%d", player1.x);
-                strcat(buf, intToChar);
-                strcat(buf, ",");
-                break;
-            case 1:
-                sprintf(intToChar, "%d", player1.y);
-                strcat(buf, intToChar);
-                strcat(buf, ",");
-                break;
-            default:
-                sprintf(intToChar, "%d", localPlayerId);
-                strcat(buf, intToChar);
-                strcat(buf, ",");
-                break;
-            }
-        }
+        sprintf(intToChar, "%d", player1.x);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", player1.y);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", localPlayerId);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
         
         //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
+        strcpy(buf, "");
 
         //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
 
-        //start of new shit
         //do parsing here and save local changes 
         length = strlen(buf);
         char * temp2[200];
@@ -379,8 +325,6 @@ int main(int argc, char* argv[])
         //storing values from buf into temp2 array
         for (size_t i = 0; i < length; i++) {
             if (p2) {
-                //if (strcmp(p2,"0") == 0)
-                //printf("%s\n", p2);
                 temp2[i] = p2;
             }
             p2 = strtok(NULL, ",");
@@ -413,12 +357,7 @@ int main(int argc, char* argv[])
         tempcounter++;
         localPlayerId = atoi(temp2[tempcounter]);
         tempcounter = 0;
-
-        //end of new shit       
-         
-        
-
-        
+        strcpy(buf, "");   
 
         drawGrid(renderer, grassTexture, tomatoTexture, player1Texture, player2Texture, player3Texture, player4Texture);
         drawUI(renderer);
