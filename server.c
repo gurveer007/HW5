@@ -7,7 +7,7 @@
 // Number of cells vertically/horizontally in the grid
 #define GRIDSIZE 10
 
-void position(int connfd);
+void position(int connfd, int playerId);
 void *thread(void *vargp);
 
 typedef struct
@@ -32,6 +32,8 @@ Position player4;
 int score;
 int level;
 int numTomatoes;
+int playerId = 0;
+char buf[MAXLINE] = "";
 
 // get a random value in the range [0, 1]
 double rand01()
@@ -66,6 +68,9 @@ void initGrid()
 
 int main(int argc, char **argv) 
 {
+    srand(time(NULL));
+
+    //creating socket variables
     int listenfd, *connfdp;
     socklen_t clientlen;
     struct sockaddr_storage clientaddr;
@@ -75,39 +80,114 @@ int main(int argc, char **argv)
 	fprintf(stderr, "usage: %s <port>\n", argv[0]);
 	exit(0);
     }
+
+    //create player position and create the grid
+    player1.x = player1.y = GRIDSIZE / 2;
+    initGrid();
+    level = 1;
+
+    //establish connection with client
     listenfd = Open_listenfd(argv[1]);
 
+    //when new clients connects, create new thread (multithreading)
     while (1) {
         clientlen=sizeof(struct sockaddr_storage);
-	connfdp = Malloc(sizeof(int)); //line:conc:echoservert:beginmalloc
-	*connfdp = Accept(listenfd, (SA *) &clientaddr, &clientlen); //line:conc:echoservert:endmalloc
-	Pthread_create(&tid, NULL, thread, connfdp);
+	    connfdp = Malloc(sizeof(int)); //line:conc:echoservert:beginmalloc
+	    *connfdp = Accept(listenfd, (SA *) &clientaddr, &clientlen); //line:conc:echoservert:endmalloc
+	    Pthread_create(&tid, NULL, thread, connfdp);
     }
 }
 
-/* Thread routine */
+//inside the new thread (new client)
 void *thread(void *vargp) 
 {  
     int connfd = *((int *)vargp);
     Pthread_detach(pthread_self()); //line:conc:echoservert:detach
     Free(vargp);                    //line:conc:echoservert:free
-    position(connfd);
+    
+    //call game related stuff
+    playerId++;
+    position(connfd, playerId);
     Close(connfd);
     return NULL;
 }
-/* $end echoservertmain */
 
-void position(int connfd) 
+void position(int connfd, int playerId) 
 {
+    int localPlayerId = playerId;
     size_t n; 
-    char buf[MAXLINE]; 
     rio_t rio;
 
     Rio_readinitb(&rio, connfd);
+
+    //encoding the grid into buf (100 chars)
+    for (int y = 0; y < GRIDSIZE; y++) {
+        for (int x = 0; x < GRIDSIZE; x++) {
+            if (player1.x == x && player1.y == y) { //player
+                strcat(buf, "5,");
+            }
+            else if (grid[x][y] == TILE_TOMATO) { //tomato
+                strcat(buf, "1,");
+            }
+            else { //grass
+                strcat(buf, "0,");
+            }
+        }
+    }
+    char intToChar[10];
+
+    sprintf(intToChar, "%d", score);
+    strcat(buf, intToChar);
+    strcat(buf, ",");
+
+    sprintf(intToChar, "%d", numTomatoes);
+    strcat(buf, intToChar);
+    strcat(buf, ",");
+
+    sprintf(intToChar, "%d", level);
+    strcat(buf, intToChar);
+    strcat(buf, ",");
+    
+    sprintf(intToChar, "%d", localPlayerId);
+    strcat(buf, intToChar);
+    strcat(buf, ",");
+
+    //replacing last "," with termination character
+    if (buf) {
+        buf[strlen(buf)-1] = '\0';
+    }
+    
+    //sending the intial positions to client
+    Rio_writen(connfd, buf, strlen(buf));
+    
+    char* p;
+    char * temp[200];
+    int length;
+    int tempcounter = 0;
+
+    //continiously read from client
     while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) { //line:netp:echo:eof
+       
         //do your parsing here and add into local variable
-        char* p;
+        length = strlen(buf);
         p = strtok(buf, ",");
+
+        //storing values from buf into temp array
+        for (size_t i = 0; i < length; i++) {
+            if (p) {
+                temp[i] = p;
+            }
+            p = strtok(NULL, ",");
+        }
+
+        //saving player positions
+        player1.x =  atoi(temp[tempcounter]);
+        tempcounter++;
+        player1.y =  atoi(temp[tempcounter]);
+        tempcounter++;
+        localPlayerId = atoi(temp[tempcounter]);
+        tempcounter = 0;
+        
         Rio_writen(connfd, buf, n);
     }
 

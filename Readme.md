@@ -17,5 +17,5 @@ Server sends to each client:
 
 (After player moves)
 Each client sends to the server:
-(playerId.x, playerId.y, increaseScore, playerId)
+(playerId.x, playerId.y, playerId)
 
