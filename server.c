@@ -25,9 +25,9 @@ typedef enum
 TILETYPE grid[GRIDSIZE][GRIDSIZE];
 
 Position player1;
-Position player2;
-Position player3;
-Position player4;
+//Position player2;
+//Position player3;
+//Position player4;
 
 int score;
 int level;
@@ -160,7 +160,7 @@ void position(int connfd, int playerId)
     
     //sending the intial positions to client
     Rio_writen(connfd, buf, strlen(buf));
-    
+    strcpy(buf, "");
     char* p;
     char * temp[200];
     int length;
@@ -188,8 +188,9 @@ void position(int connfd, int playerId)
         tempcounter++;
         localPlayerId = atoi(temp[tempcounter]);
         tempcounter = 0;
-        
-        //new stuff
+        strcpy(buf, "");
+
+        //encoding
         if (grid[player1.x][player1.y] == TILE_TOMATO) {
             grid[player1.x][player1.y] = TILE_GRASS;
             score++;
@@ -240,6 +241,7 @@ void position(int connfd, int playerId)
         }
 
         Rio_writen(connfd, buf, n);
+        strcpy(buf, "");
     }
 
 }

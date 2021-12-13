@@ -50,6 +50,7 @@ bool shouldExit = false;
 
 TTF_Font* font;
 
+//comment this out again vv
 /*
 // get a random value in the range [0, 1]
 double rand01()
@@ -82,6 +83,7 @@ void initGrid()
         initGrid();
 }
  */
+//comment this out again ^^ 
 
 void initSDL()
 {
@@ -117,16 +119,6 @@ void moveTo(int x, int y)
 
     player1.x = x;
     player1.y = y;
-
-   /* if (grid[x][y] == TILE_TOMATO) {
-        //grid[x][y] = TILE_GRASS;
-        //increaseScore = true;
-        /*if (numTomatoes == 0) {
-            level++;
-            initGrid();
-        }
-        
-    }*/
 }
 
 void handleKeyDown(SDL_KeyboardEvent* event)
@@ -231,6 +223,7 @@ int main(int argc, char* argv[])
     //srand(time(NULL));
 
     //level = 1;
+    //initGrid();
 
     int clientfd;
     char *host, *port;
@@ -248,7 +241,7 @@ int main(int argc, char* argv[])
     clientfd = Open_clientfd(host, port);
     Rio_readinitb(&rio, clientfd);
     
-
+    
     initSDL();
 
     font = TTF_OpenFont("resources/Burbank-Big-Condensed-Bold-Font.otf", HEADER_HEIGHT);
@@ -259,7 +252,7 @@ int main(int argc, char* argv[])
 
     //player1.x = player1.y = 0;
 
-    //Receiving data from server
+    //Receiving initial data from server
     Rio_readlineb(&rio, buf, MAXLINE);
     
     //do parsing here and save local changes
@@ -307,7 +300,7 @@ int main(int argc, char* argv[])
     tempcounter++;
     localPlayerId = atoi(temp[tempcounter]);
     tempcounter = 0;
-
+    strcpy(buf, "");
     //initGrid();
 
     SDL_Window* window = SDL_CreateWindow("Client", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
@@ -340,29 +333,22 @@ int main(int argc, char* argv[])
         processInputs();
         
         //encoding into buf
-        for (int i = 0; i < 3; i++) {
-            switch (i)
-            {
-            case 0: 
-                sprintf(intToChar, "%d", player1.x);
-                strcat(buf, intToChar);
-                strcat(buf, ",");
-                break;
-            case 1:
-                sprintf(intToChar, "%d", player1.y);
-                strcat(buf, intToChar);
-                strcat(buf, ",");
-                break;
-            default:
-                sprintf(intToChar, "%d", localPlayerId);
-                strcat(buf, intToChar);
-                strcat(buf, ",");
-                break;
-            }
-        }
+
+        sprintf(intToChar, "%d", player1.x);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", player1.y);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", localPlayerId);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
         
         //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
+        strcpy(buf, "");
 
         //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
@@ -413,7 +399,7 @@ int main(int argc, char* argv[])
         tempcounter++;
         localPlayerId = atoi(temp2[tempcounter]);
         tempcounter = 0;
-
+        strcpy(buf, "");
         //end of new shit       
          
         
