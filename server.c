@@ -155,7 +155,7 @@ void position(int connfd, int playerId)
 
     //replacing last "," with termination character
     if (buf) {
-        buf[strlen(buf)-1] = '\0';
+        buf[strlen(buf)-1] = '\n';
     }
     
     //sending the intial positions to client
@@ -237,7 +237,7 @@ void position(int connfd, int playerId)
 
         //replacing last "," with termination character
         if (buf) {
-            buf[strlen(buf)-1] = '\0';
+            buf[strlen(buf)-1] = '\n';
         }
 
         Rio_writen(connfd, buf, n);

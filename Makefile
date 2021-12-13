@@ -13,8 +13,8 @@ all: $(OUTPUT)
 runclient: $(OUTPUT)
 	LD_LIBRARY_PATH=lib ./client
 
-server: server.o
-	gcc -pthread csapp.c $(CFLAGS) -o $@ $^ $(LFLAGS)
+server: server.o csapp.o 
+	gcc $(OUTPUT) -o $@ $^
 
 client: client.o csapp.o
 	gcc $(CFLAGS) -o $@ $^ $(LFLAGS)
