@@ -118,15 +118,15 @@ void moveTo(int x, int y)
     player1.x = x;
     player1.y = y;
 
-    if (grid[x][y] == TILE_TOMATO) {
+   /* if (grid[x][y] == TILE_TOMATO) {
         //grid[x][y] = TILE_GRASS;
         //increaseScore = true;
         /*if (numTomatoes == 0) {
             level++;
             initGrid();
         }
-        */
-    }
+        
+    }*/
 }
 
 void handleKeyDown(SDL_KeyboardEvent* event)
@@ -367,12 +367,55 @@ int main(int argc, char* argv[])
         //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
 
-        //do parsing here and save local changes
-        for (int x =0; x < GRIDSIZE; x++) {
-            for (int y =0; y < GRIDSIZE; y++) {
-                
+        //start of new shit
+        //do parsing here and save local changes 
+        length = strlen(buf);
+        char * temp2[200];
+        //char intToChar[10];
+        tempcounter = 0;
+        char *p2;
+        p2 = strtok(buf, ",");
+
+        //storing values from buf into temp2 array
+        for (size_t i = 0; i < length; i++) {
+            if (p2) {
+                //if (strcmp(p2,"0") == 0)
+                //printf("%s\n", p2);
+                temp2[i] = p2;
+            }
+            p2 = strtok(NULL, ",");
+        }
+
+        //saving positions into grid
+        for (int y = 0; y < GRIDSIZE; y++) {
+            for (int x = 0; x < GRIDSIZE; x++) {
+                if (strcmp(temp2[tempcounter],"0") == 0) { //grass
+                    grid[x][y] = TILE_GRASS;
+                }
+                else if (strcmp(temp2[tempcounter],"1") == 0) { //tomato
+                    grid[x][y] = TILE_TOMATO;
+                }
+                else if (strcmp(temp2[tempcounter],"5") == 0) { //player1
+                    grid[x][y] = TILE_GRASS;
+                    player1.x = x;
+                    player1.y = y;
+                }
+                tempcounter++;
             }
         }
+        
+        //storing score, numOfTomatos, level, and playerID
+        score = atoi(temp2[tempcounter]);
+        tempcounter++;
+        numTomatoes = atoi(temp2[tempcounter]);
+        tempcounter++;
+        level = atoi(temp2[tempcounter]);
+        tempcounter++;
+        localPlayerId = atoi(temp2[tempcounter]);
+        tempcounter = 0;
+
+        //end of new shit       
+         
         
 
         

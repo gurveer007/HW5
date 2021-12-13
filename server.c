@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 	fprintf(stderr, "usage: %s <port>\n", argv[0]);
 	exit(0);
     }
-
+    
     //create player position and create the grid
     player1.x = player1.y = GRIDSIZE / 2;
     initGrid();
@@ -91,6 +91,7 @@ int main(int argc, char **argv)
 
     //when new clients connects, create new thread (multithreading)
     while (1) {
+        
         clientlen=sizeof(struct sockaddr_storage);
 	    connfdp = Malloc(sizeof(int)); //line:conc:echoservert:beginmalloc
 	    *connfdp = Accept(listenfd, (SA *) &clientaddr, &clientlen); //line:conc:echoservert:endmalloc
@@ -188,6 +189,56 @@ void position(int connfd, int playerId)
         localPlayerId = atoi(temp[tempcounter]);
         tempcounter = 0;
         
+        //new stuff
+        if (grid[player1.x][player1.y] == TILE_TOMATO) {
+            grid[player1.x][player1.y] = TILE_GRASS;
+            score++;
+            numTomatoes--;
+
+            if (numTomatoes == 0) {
+                level++;
+                initGrid();
+            }
+        
+        }
+
+        //encoding the grid into buf (100 chars)
+        for (int y = 0; y < GRIDSIZE; y++) {
+            for (int x = 0; x < GRIDSIZE; x++) {
+                if (player1.x == x && player1.y == y) { //player
+                    strcat(buf, "5,");
+                }
+                else if (grid[x][y] == TILE_TOMATO) { //tomato
+                    strcat(buf, "1,");
+                }
+                else { //grass
+                    strcat(buf, "0,");
+                }
+            }
+        }
+        
+
+        sprintf(intToChar, "%d", score);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", numTomatoes);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", level);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+        
+        sprintf(intToChar, "%d", localPlayerId);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        //replacing last "," with termination character
+        if (buf) {
+            buf[strlen(buf)-1] = '\0';
+        }
+
         Rio_writen(connfd, buf, n);
     }
 
