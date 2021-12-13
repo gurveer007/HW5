@@ -46,6 +46,7 @@ int numTomatoes;
 int localPlayerId;
 char buf[MAXLINE] = "";
 bool shouldExit = false;
+//bool increaseScore = false;
 
 TTF_Font* font;
 
@@ -118,13 +119,13 @@ void moveTo(int x, int y)
     player1.y = y;
 
     if (grid[x][y] == TILE_TOMATO) {
-        grid[x][y] = TILE_GRASS;
-        score++;
-        numTomatoes--;
-        if (numTomatoes == 0) {
+        //grid[x][y] = TILE_GRASS;
+        //increaseScore = true;
+        /*if (numTomatoes == 0) {
             level++;
             initGrid();
         }
+        */
     }
 }
 
@@ -264,6 +265,7 @@ int main(int argc, char* argv[])
     //do parsing here and save local changes
     int length = strlen(buf);
     char * temp[200];
+    char intToChar[10];
     int tempcounter = 0;
     char *p;
     p = strtok(buf, ",");
@@ -329,14 +331,36 @@ int main(int argc, char* argv[])
     SDL_Texture *player2Texture = IMG_LoadTexture(renderer, "resources/player2.png");
     SDL_Texture *player3Texture = IMG_LoadTexture(renderer, "resources/player3.png");
     SDL_Texture *player4Texture = IMG_LoadTexture(renderer, "resources/player4.png");
-
+    
     // main game loop
     while (!shouldExit) {
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
 
+        processInputs();
+        
         //encoding into buf
-
+        for (int i = 0; i < 3; i++) {
+            switch (i)
+            {
+            case 0: 
+                sprintf(intToChar, "%d", player1.x);
+                strcat(buf, intToChar);
+                strcat(buf, ",");
+                break;
+            case 1:
+                sprintf(intToChar, "%d", player1.y);
+                strcat(buf, intToChar);
+                strcat(buf, ",");
+                break;
+            default:
+                sprintf(intToChar, "%d", localPlayerId);
+                strcat(buf, intToChar);
+                strcat(buf, ",");
+                break;
+            }
+        }
+        
         //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
 
@@ -351,7 +375,7 @@ int main(int argc, char* argv[])
         }
         
 
-        processInputs();
+        
 
         drawGrid(renderer, grassTexture, tomatoTexture, player1Texture, player2Texture, player3Texture, player4Texture);
         drawUI(renderer);

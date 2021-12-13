@@ -69,6 +69,8 @@ void initGrid()
 int main(int argc, char **argv) 
 {
     srand(time(NULL));
+
+    //creating socket variables
     int listenfd, *connfdp;
     socklen_t clientlen;
     struct sockaddr_storage clientaddr;
@@ -79,6 +81,7 @@ int main(int argc, char **argv)
 	exit(0);
     }
 
+    //create player position and create the grid
     player1.x = player1.y = GRIDSIZE / 2;
     initGrid();
     level = 1;
@@ -86,7 +89,7 @@ int main(int argc, char **argv)
     //establish connection with client
     listenfd = Open_listenfd(argv[1]);
 
-    //while new clients are established, create new thread (multithreading)
+    //when new clients connects, create new thread (multithreading)
     while (1) {
         clientlen=sizeof(struct sockaddr_storage);
 	    connfdp = Malloc(sizeof(int)); //line:conc:echoservert:beginmalloc
@@ -101,6 +104,7 @@ void *thread(void *vargp)
     int connfd = *((int *)vargp);
     Pthread_detach(pthread_self()); //line:conc:echoservert:detach
     Free(vargp);                    //line:conc:echoservert:free
+    
     //call game related stuff
     playerId++;
     position(connfd, playerId);
@@ -130,22 +134,22 @@ void position(int connfd, int playerId)
             }
         }
     }
-    char temp[10];
+    char intToChar[10];
 
-    sprintf(temp, "%d", score);
-    strcat(buf, temp);
+    sprintf(intToChar, "%d", score);
+    strcat(buf, intToChar);
     strcat(buf, ",");
 
-    sprintf(temp, "%d", numTomatoes);
-    strcat(buf, temp);
+    sprintf(intToChar, "%d", numTomatoes);
+    strcat(buf, intToChar);
     strcat(buf, ",");
 
-    sprintf(temp, "%d", level);
-    strcat(buf, temp);
+    sprintf(intToChar, "%d", level);
+    strcat(buf, intToChar);
     strcat(buf, ",");
     
-    sprintf(temp, "%d", localPlayerId);
-    strcat(buf, temp);
+    sprintf(intToChar, "%d", localPlayerId);
+    strcat(buf, intToChar);
     strcat(buf, ",");
 
     //replacing last "," with termination character
@@ -156,12 +160,34 @@ void position(int connfd, int playerId)
     //sending the intial positions to client
     Rio_writen(connfd, buf, strlen(buf));
     
-    //while not eof continue reading from client
+    char* p;
+    char * temp[200];
+    int length;
+    int tempcounter = 0;
+
+    //continiously read from client
     while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) { //line:netp:echo:eof
-        
+       
         //do your parsing here and add into local variable
-        char* p;
+        length = strlen(buf);
         p = strtok(buf, ",");
+
+        //storing values from buf into temp array
+        for (size_t i = 0; i < length; i++) {
+            if (p) {
+                temp[i] = p;
+            }
+            p = strtok(NULL, ",");
+        }
+
+        //saving player positions
+        player1.x =  atoi(temp[tempcounter]);
+        tempcounter++;
+        player1.y =  atoi(temp[tempcounter]);
+        tempcounter++;
+        localPlayerId = atoi(temp[tempcounter]);
+        tempcounter = 0;
+        
         Rio_writen(connfd, buf, n);
     }
 
