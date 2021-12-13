@@ -151,12 +151,7 @@ void position(int connfd, int playerId)
     
     sprintf(intToChar, "%d", localPlayerId);
     strcat(buf, intToChar);
-    strcat(buf, ",");
-
-    //replacing last "," with termination character
-    if (buf) {
-        buf[strlen(buf)-1] = '\n';
-    }
+    strcat(buf, "\n");
     
     //sending the intial positions to client
     Rio_writen(connfd, buf, strlen(buf));
@@ -190,7 +185,7 @@ void position(int connfd, int playerId)
         tempcounter = 0;
         strcpy(buf, "");
 
-        //encoding
+        //checking if player has obtained a tomato
         if (grid[player1.x][player1.y] == TILE_TOMATO) {
             grid[player1.x][player1.y] = TILE_GRASS;
             score++;
@@ -200,10 +195,9 @@ void position(int connfd, int playerId)
                 level++;
                 initGrid();
             }
-        
         }
 
-        //encoding the grid into buf (100 chars)
+        //encoding the grid into buf
         for (int y = 0; y < GRIDSIZE; y++) {
             for (int x = 0; x < GRIDSIZE; x++) {
                 if (player1.x == x && player1.y == y) { //player
@@ -233,12 +227,7 @@ void position(int connfd, int playerId)
         
         sprintf(intToChar, "%d", localPlayerId);
         strcat(buf, intToChar);
-        strcat(buf, ",");
-
-        //replacing last "," with termination character
-        if (buf) {
-            buf[strlen(buf)-1] = '\n';
-        }
+        strcat(buf, "\n");
 
         Rio_writen(connfd, buf, n);
         strcpy(buf, "");
