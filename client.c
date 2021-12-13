@@ -211,57 +211,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    
-
-    //player1.x = player1.y = 0;
     puts("start of main");
-    //Receiving initial data from server
-    Rio_readlineb(&rio, buf, MAXLINE);
-    puts("just read inital data");
-    //do parsing here and save local changes
-    int length = strlen(buf);
-    char * temp[200];
-    char intToChar[10];
-    int tempcounter = 0;
-    char *p;
-    p = strtok(buf, ",");
-
-    //storing values from buf into temp array
-    for (size_t i = 0; i < length; i++) {
-        if (p) {
-            temp[i] = p;
-        }
-        p = strtok(NULL, ",");
-    }
-
-    //saving positions into grid
-    for (int y = 0; y < GRIDSIZE; y++) {
-        for (int x = 0; x < GRIDSIZE; x++) {
-            if (strcmp(temp[tempcounter],"0") == 0) { //grass
-                grid[x][y] = TILE_GRASS;
-            }
-            else if (strcmp(temp[tempcounter],"1") == 0) { //tomato
-                grid[x][y] = TILE_TOMATO;
-            }
-            else if (strcmp(temp[tempcounter],"5") == 0) { //player1
-                grid[x][y] = TILE_GRASS;
-                player1.x = x;
-                player1.y = y;
-            }
-            tempcounter++;
-        }
-    }
-    
-    //storing score, numOfTomatos, level, and playerID
-    score = atoi(temp[tempcounter]);
-    tempcounter++;
-    numTomatoes = atoi(temp[tempcounter]);
-    tempcounter++;
-    level = atoi(temp[tempcounter]);
-    tempcounter++;
-    localPlayerId = atoi(temp[tempcounter]);
-    tempcounter = 0;
-    strcpy(buf, "");
 
     SDL_Window* window = SDL_CreateWindow("Client", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
@@ -285,31 +235,17 @@ int main(int argc, char* argv[])
     SDL_Texture *player3Texture = IMG_LoadTexture(renderer, "resources/player3.png");
     SDL_Texture *player4Texture = IMG_LoadTexture(renderer, "resources/player4.png");
     
+
+    int length;
+    char intToChar[10];
+    int tempcounter = 0;
+    
     // main game loop
     while (!shouldExit) {
         puts("in loop");
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
 
-        processInputs();
-        
-        //encoding into buf
-        sprintf(intToChar, "%d", player1.x);
-        strcat(buf, intToChar);
-        strcat(buf, ",");
-
-        sprintf(intToChar, "%d", player1.y);
-        strcat(buf, intToChar);
-        strcat(buf, ",");
-
-        sprintf(intToChar, "%d", localPlayerId);
-        strcat(buf, intToChar);
-        strcat(buf, "\n");
-
-        //writing to server
-        Rio_writen(clientfd, buf, strlen(buf));
-        strcpy(buf, "");
-        
         //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
         puts("just read data server");
@@ -358,6 +294,25 @@ int main(int argc, char* argv[])
         localPlayerId = atoi(temp2[tempcounter]);
         tempcounter = 0;
         strcpy(buf, "");   
+
+        processInputs();
+        
+        //encoding into buf
+        sprintf(intToChar, "%d", player1.x);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", player1.y);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", localPlayerId);
+        strcat(buf, intToChar);
+        strcat(buf, "\n");
+
+        //writing to server
+        Rio_writen(clientfd, buf, strlen(buf));
+        strcpy(buf, "");
 
         drawGrid(renderer, grassTexture, tomatoTexture, player1Texture, player2Texture, player3Texture, player4Texture);
         drawUI(renderer);
