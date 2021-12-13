@@ -190,7 +190,7 @@ void position(int connfd, int playerId)
         tempcounter = 0;
         strcpy(buf, "");
 
-        //encoding
+        //checking if player has obtained a tomato
         if (grid[player1.x][player1.y] == TILE_TOMATO) {
             grid[player1.x][player1.y] = TILE_GRASS;
             score++;
@@ -200,7 +200,6 @@ void position(int connfd, int playerId)
                 level++;
                 initGrid();
             }
-        
         }
 
         //encoding the grid into buf (100 chars)
