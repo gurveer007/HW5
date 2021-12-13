@@ -214,10 +214,10 @@ int main(int argc, char* argv[])
     
 
     //player1.x = player1.y = 0;
-
+    puts("start of main");
     //Receiving initial data from server
     Rio_readlineb(&rio, buf, MAXLINE);
-    
+    puts("just read inital data");
     //do parsing here and save local changes
     int length = strlen(buf);
     char * temp[200];
@@ -384,4 +384,5 @@ int main(int argc, char* argv[])
 
     Close(clientfd);
     exit(0);
+    //hjhkgh
 }
