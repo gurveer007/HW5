@@ -1,5 +1,5 @@
 OUTPUT = client server
-CFLAGS = -g -Wall -Wvla -I inc -D_REENTRANT
+CFLAGS = -g -Wall -Wvla -I inc -D_REENTRANT -pthread
 LFLAGS = -L lib -lSDL2 -lSDL2_image -lSDL2_ttf
 
 %.o: %.c %.h
@@ -13,10 +13,8 @@ all: $(OUTPUT)
 runclient: $(OUTPUT)
 	LD_LIBRARY_PATH=lib ./client
 
-server: server.o
-	gcc $(CFLAGS) -o $@ $^
 
-client: client.o
+client: client.o csapp.o
 	gcc $(CFLAGS) -o $@ $^ $(LFLAGS)
 
 clean:
