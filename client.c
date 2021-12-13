@@ -229,8 +229,6 @@ int main(int argc, char* argv[])
     //storing values from buf into temp array
     for (size_t i = 0; i < length; i++) {
         if (p) {
-            //if (strcmp(p,"0") == 0)
-            //printf("%s\n", p);
             temp[i] = p;
         }
         p = strtok(NULL, ",");
@@ -305,8 +303,8 @@ int main(int argc, char* argv[])
 
         sprintf(intToChar, "%d", localPlayerId);
         strcat(buf, intToChar);
-        strcat(buf, ",");
-        
+        strcat(buf, "\n");
+
         //writing to server
         Rio_writen(clientfd, buf, strlen(buf));
         strcpy(buf, "");

@@ -36,6 +36,7 @@ int main()
     sprintf(temp, "%d", localPlayerId);
     strcat(buf, temp);
     strcat(buf, ",");
+    strcat(buf, "\n");
 
     //replacing last "," with termination character
     if (buf) {
