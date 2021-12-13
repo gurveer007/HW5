@@ -211,6 +211,8 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
+    
+
     //player1.x = player1.y = 0;
 
     //Receiving initial data from server
