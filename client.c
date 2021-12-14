@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
     int length;
     char intToChar[10];
     int tempcounter = 0;
-    
+
     // main game loop
     while (!shouldExit) {
         puts("in loop");
@@ -291,7 +291,7 @@ int main(int argc, char* argv[])
         tempcounter++;
         level = atoi(temp2[tempcounter]);
         tempcounter++;
-        localPlayerId = atoi(temp2[tempcounter]);
+        //localPlayerId = atoi(temp2[tempcounter]);
         tempcounter = 0;
         strcpy(buf, "");   
 
@@ -305,9 +305,6 @@ int main(int argc, char* argv[])
         sprintf(intToChar, "%d", player1.y);
         strcat(buf, intToChar);
         strcat(buf, ",");
-
-        sprintf(intToChar, "%d", localPlayerId);
-        strcat(buf, intToChar);
         strcat(buf, "\n");
 
         //writing to server
