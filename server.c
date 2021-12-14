@@ -115,7 +115,7 @@ void *thread(void *vargp)
 
 void position(int connfd, int playerId) 
 {
-    int localPlayerId = playerId;
+    //int localPlayerId = playerId;
     size_t n; 
     rio_t rio;
     puts("start of function");
@@ -148,10 +148,8 @@ void position(int connfd, int playerId)
     sprintf(intToChar, "%d", level);
     strcat(buf, intToChar);
     strcat(buf, ",");
-    
-    sprintf(intToChar, "%d", localPlayerId);
-    strcat(buf, intToChar);
     strcat(buf, "\n");
+    
     
     //sending the intial positions to client
     Rio_writen(connfd, buf, strlen(buf));
@@ -181,7 +179,7 @@ void position(int connfd, int playerId)
         tempcounter++;
         player1.y =  atoi(temp[tempcounter]);
         tempcounter++;
-        localPlayerId = atoi(temp[tempcounter]);
+        //localPlayerId = atoi(temp[tempcounter]);
         tempcounter = 0;
         strcpy(buf, "");
 
@@ -224,9 +222,6 @@ void position(int connfd, int playerId)
         sprintf(intToChar, "%d", level);
         strcat(buf, intToChar);
         strcat(buf, ",");
-        
-        sprintf(intToChar, "%d", localPlayerId);
-        strcat(buf, intToChar);
         strcat(buf, "\n");
 
         Rio_writen(connfd, buf, strlen(buf));
