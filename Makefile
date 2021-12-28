@@ -11,8 +11,7 @@ LFLAGS = -L lib -lSDL2 -lSDL2_image -lSDL2_ttf
 all: $(OUTPUT)
 
 runclient: $(OUTPUT)
-	LD_LIBRARY_PATH=lib ./client
-
+	LD_LIBRARY_PATH=lib ./client localhost 9012
 server: server.o
 	gcc -pthread csapp.c $(CFLAGS) -o $@ $^ $(LFLAGS)
 

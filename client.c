@@ -37,8 +37,9 @@ TILETYPE grid[GRIDSIZE][GRIDSIZE];
 
 Position player1;
 Position player2;
-//Position player3;
-//Position player4;
+Position player3;
+Position player4;
+Position* currentPlayer;
 
 int score;
 int level;
@@ -46,7 +47,10 @@ int numTomatoes;
 int localPlayerId;
 char buf[MAXLINE] = "";
 bool shouldExit = false;
-//bool increaseScore = false;
+bool p1Exist = false;
+bool p2Exist = false;
+bool p3Exist = false;
+bool p4Exist = false;
 
 TTF_Font* font;
 
@@ -76,14 +80,14 @@ void moveTo(int x, int y)
         return;
 
     // Sanity check: player can only move to 4 adjacent squares
-    if (!(abs(player1.x - x) == 1 && abs(player1.y - y) == 0) &&
-        !(abs(player1.x - x) == 0 && abs(player1.y - y) == 1)) {
-        fprintf(stderr, "Invalid move attempted from (%d, %d) to (%d, %d)\n", player1.x, player1.y, x, y);
+    if (!(abs(currentPlayer->x - x) == 1 && abs(currentPlayer->y - y) == 0) &&
+        !(abs(currentPlayer->x - x) == 0 && abs(currentPlayer->y - y) == 1)) {
+        fprintf(stderr, "Invalid move attempted from (%d, %d) to (%d, %d)\n", currentPlayer->x, currentPlayer->y, x, y);
         return;
     }
 
-    player1.x = x;
-    player1.y = y;
+    currentPlayer->x = x;
+    currentPlayer->y = y;
 }
 
 void handleKeyDown(SDL_KeyboardEvent* event)
@@ -96,16 +100,16 @@ void handleKeyDown(SDL_KeyboardEvent* event)
         shouldExit = true;
 
     if (event->keysym.scancode == SDL_SCANCODE_UP || event->keysym.scancode == SDL_SCANCODE_W)
-        moveTo(player1.x, player1.y - 1);
+        moveTo(currentPlayer->x, currentPlayer->y - 1);
 
     if (event->keysym.scancode == SDL_SCANCODE_DOWN || event->keysym.scancode == SDL_SCANCODE_S)
-        moveTo(player1.x, player1.y + 1);
+        moveTo(currentPlayer->x, currentPlayer->y + 1);
 
     if (event->keysym.scancode == SDL_SCANCODE_LEFT || event->keysym.scancode == SDL_SCANCODE_A)
-        moveTo(player1.x - 1, player1.y);
+        moveTo(currentPlayer->x - 1, currentPlayer->y);
 
     if (event->keysym.scancode == SDL_SCANCODE_RIGHT || event->keysym.scancode == SDL_SCANCODE_D)
-        moveTo(player1.x + 1, player1.y);
+        moveTo(currentPlayer->x + 1, currentPlayer->y);
 }
 
 void processInputs()
@@ -142,10 +146,30 @@ void drawGrid(SDL_Renderer* renderer, SDL_Texture* grassTexture, SDL_Texture* to
     }
 
     //creating player texture (override the grass texture)
-    dest.x = 64 * player1.x;
-    dest.y = 64 * player1.y + HEADER_HEIGHT;
-    SDL_QueryTexture(player1Texture, NULL, NULL, &dest.w, &dest.h);
-    SDL_RenderCopy(renderer, player1Texture, NULL, &dest);
+    if (p1Exist) {
+        dest.x = 64 * player1.x;
+        dest.y = 64 * player1.y + HEADER_HEIGHT;
+        SDL_QueryTexture(player1Texture, NULL, NULL, &dest.w, &dest.h);
+        SDL_RenderCopy(renderer, player1Texture, NULL, &dest);
+    }
+    if (p2Exist) {
+        dest.x = 64 * player2.x;
+        dest.y = 64 * player2.y + HEADER_HEIGHT;
+        SDL_QueryTexture(player2Texture, NULL, NULL, &dest.w, &dest.h);
+        SDL_RenderCopy(renderer, player2Texture, NULL, &dest);
+    }
+    if (p3Exist) {
+        dest.x = 64 * player3.x;
+        dest.y = 64 * player3.y + HEADER_HEIGHT;
+        SDL_QueryTexture(player3Texture, NULL, NULL, &dest.w, &dest.h);
+        SDL_RenderCopy(renderer, player3Texture, NULL, &dest);
+    }
+    if (p4Exist) {
+        dest.x = 64 * player4.x;
+        dest.y = 64 * player4.y + HEADER_HEIGHT;
+        SDL_QueryTexture(player4Texture, NULL, NULL, &dest.w, &dest.h);
+        SDL_RenderCopy(renderer, player4Texture, NULL, &dest);
+    }
 }
 
 void drawUI(SDL_Renderer* renderer)
@@ -211,57 +235,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    
-
-    //player1.x = player1.y = 0;
-
-    //Receiving initial data from server
-    Rio_readlineb(&rio, buf, MAXLINE);
-    
-    //do parsing here and save local changes
-    int length = strlen(buf);
-    char * temp[200];
-    char intToChar[10];
-    int tempcounter = 0;
-    char *p;
-    p = strtok(buf, ",");
-
-    //storing values from buf into temp array
-    for (size_t i = 0; i < length; i++) {
-        if (p) {
-            temp[i] = p;
-        }
-        p = strtok(NULL, ",");
-    }
-
-    //saving positions into grid
-    for (int y = 0; y < GRIDSIZE; y++) {
-        for (int x = 0; x < GRIDSIZE; x++) {
-            if (strcmp(temp[tempcounter],"0") == 0) { //grass
-                grid[x][y] = TILE_GRASS;
-            }
-            else if (strcmp(temp[tempcounter],"1") == 0) { //tomato
-                grid[x][y] = TILE_TOMATO;
-            }
-            else if (strcmp(temp[tempcounter],"5") == 0) { //player1
-                grid[x][y] = TILE_GRASS;
-                player1.x = x;
-                player1.y = y;
-            }
-            tempcounter++;
-        }
-    }
-    
-    //storing score, numOfTomatos, level, and playerID
-    score = atoi(temp[tempcounter]);
-    tempcounter++;
-    numTomatoes = atoi(temp[tempcounter]);
-    tempcounter++;
-    level = atoi(temp[tempcounter]);
-    tempcounter++;
-    localPlayerId = atoi(temp[tempcounter]);
-    tempcounter = 0;
-    strcpy(buf, "");
+    //puts("start of main");
 
     SDL_Window* window = SDL_CreateWindow("Client", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
@@ -285,36 +259,24 @@ int main(int argc, char* argv[])
     SDL_Texture *player3Texture = IMG_LoadTexture(renderer, "resources/player3.png");
     SDL_Texture *player4Texture = IMG_LoadTexture(renderer, "resources/player4.png");
     
+
+    int length;
+    char intToChar[10];
+    int tempcounter = 0;
+
     // main game loop
     while (!shouldExit) {
+        //puts("in loop");
         SDL_SetRenderDrawColor(renderer, 0, 105, 6, 255);
         SDL_RenderClear(renderer);
 
-        processInputs();
-        
-        //encoding into buf
-        sprintf(intToChar, "%d", player1.x);
-        strcat(buf, intToChar);
-        strcat(buf, ",");
-
-        sprintf(intToChar, "%d", player1.y);
-        strcat(buf, intToChar);
-        strcat(buf, ",");
-
-        sprintf(intToChar, "%d", localPlayerId);
-        strcat(buf, intToChar);
-        strcat(buf, "\n");
-
-        //writing to server
-        Rio_writen(clientfd, buf, strlen(buf));
-        strcpy(buf, "");
-
         //Receiving data from server
         Rio_readlineb(&rio, buf, MAXLINE);
+        //puts("just read data server");
 
         //do parsing here and save local changes 
         length = strlen(buf);
-        char * temp2[200];
+        char * temp2[300];
         //char intToChar[10];
         tempcounter = 0;
         char *p2;
@@ -337,10 +299,29 @@ int main(int argc, char* argv[])
                 else if (strcmp(temp2[tempcounter],"1") == 0) { //tomato
                     grid[x][y] = TILE_TOMATO;
                 }
-                else if (strcmp(temp2[tempcounter],"5") == 0) { //player1
+                else if (strcmp(temp2[tempcounter],"p1") == 0) { //player1
                     grid[x][y] = TILE_GRASS;
                     player1.x = x;
                     player1.y = y;
+                    p1Exist = true;
+                }
+                else if (strcmp(temp2[tempcounter],"p2") == 0) { //player2
+                    grid[x][y] = TILE_GRASS;
+                    player2.x = x;
+                    player2.y = y;
+                    p2Exist = true;
+                }
+                else if (strcmp(temp2[tempcounter],"p3") == 0) { //player3
+                    grid[x][y] = TILE_GRASS;
+                    player3.x = x;
+                    player3.y = y;
+                    p3Exist = true;
+                }
+                else if (strcmp(temp2[tempcounter],"p4") == 0) { //player4
+                    grid[x][y] = TILE_GRASS;
+                    player4.x = x;
+                    player4.y = y;
+                    p4Exist = true;
                 }
                 tempcounter++;
             }
@@ -348,17 +329,57 @@ int main(int argc, char* argv[])
         
         //storing score, numOfTomatos, level, and playerID
         score = atoi(temp2[tempcounter]);
+        //printf("score is : %d\n", score);
         tempcounter++;
         numTomatoes = atoi(temp2[tempcounter]);
+        //printf("tomatoes is : %d\n", numTomatoes);
         tempcounter++;
         level = atoi(temp2[tempcounter]);
+        //printf("level is : %d\n", level);
         tempcounter++;
         localPlayerId = atoi(temp2[tempcounter]);
+        //printf("id is : %d\n", localPlayerId);
         tempcounter = 0;
         strcpy(buf, "");   
 
+        // if (p2Exist) {
+        //     printf("p2 exist\n");
+        // }
+
+        if (localPlayerId == 1) {
+            currentPlayer = &player1;
+        }
+        else if (localPlayerId == 2) {
+            currentPlayer = &player2;
+        }
+        else if (localPlayerId == 3) {
+            currentPlayer = &player3;
+        }
+        else if (localPlayerId == 4) {
+            currentPlayer = &player4;
+        }
+        //printf("the id is: %d\n", localPlayerId);
+        processInputs();
+        
+        //encoding into buf
+        sprintf(intToChar, "%d", currentPlayer->x);
+        strcat(buf, intToChar);
+        strcat(buf, ",");
+
+        sprintf(intToChar, "%d", currentPlayer->y);
+        strcat(buf, intToChar);
+        strcat(buf, "\n");
+
+        //writing to server
+        Rio_writen(clientfd, buf, strlen(buf));
+        strcpy(buf, "");
+
         drawGrid(renderer, grassTexture, tomatoTexture, player1Texture, player2Texture, player3Texture, player4Texture);
         drawUI(renderer);
+        // p1Exist = false;
+        // p2Exist = false;
+        // p3Exist = false;
+        // p4Exist = false;
 
         SDL_RenderPresent(renderer);
 
